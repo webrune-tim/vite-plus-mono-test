@@ -4,7 +4,7 @@ import viteLogo from "./assets/vite.svg";
 import heroImg from "./assets/hero.png";
 import { setupCounter } from "./counter.ts";
 
-document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
+document.querySelector<HTMLDivElement>("#app")!.innerHTML = /*html*/ `
 <section id="center">
   <div class="hero">
     <img src="${heroImg}" class="base" width="170" height="179">
@@ -15,6 +15,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     <h1>Get started</h1>
     <p>Edit <code>src/main.ts</code> and save to test <code>HMR</code></p>
   </div>
+  <button id="theme-toggle" class="theme-toggle">🌞</button>
   <button id="counter" type="button" class="counter"></button>
 </section>
 
@@ -58,3 +59,39 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 `;
 
 setupCounter(document.querySelector<HTMLButtonElement>("#counter")!);
+
+// Theme toggle functionality
+const themes = ["light", "dark", "system"] as const;
+let currentThemeIndex = 0;
+
+const themeToggle = document.getElementById("theme-toggle") as HTMLButtonElement;
+
+function applyTheme(theme: string) {
+  const html = document.documentElement;
+  if (theme === "system") {
+    html.removeAttribute("data-theme");
+  } else {
+    html.setAttribute("data-theme", theme);
+  }
+  localStorage.setItem("theme", theme);
+  updateToggleButton(theme);
+}
+
+function updateToggleButton(theme: string) {
+  const icons = { light: "🌞", dark: "🌙", system: "💻" };
+  themeToggle.textContent = icons[theme as keyof typeof icons];
+}
+
+function initTheme() {
+  const stored = localStorage.getItem("theme") || "system";
+  currentThemeIndex = themes.indexOf(stored as (typeof themes)[number]);
+  applyTheme(stored);
+}
+
+themeToggle.addEventListener("click", () => {
+  currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+  const newTheme = themes[currentThemeIndex];
+  applyTheme(newTheme);
+});
+
+initTheme();
